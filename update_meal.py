@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw, ImageFont
 # 1. 고정 설정값
 ATPT_CODE = "N10"
 SCHUL_CODE = "8140253"
-API_KEY = "2af6977132b24eba82c8f17c111a605c"
+API_KEY = os.environ.get("NEIS_API_KEY")
 USER_ID = "0115seed-sketch" 
 REPO_NAME = "meal-app2"
 
