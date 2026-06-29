@@ -1,0 +1,39 @@
+name: Calculate Regional Weekly Average
+
+on:
+  schedule:
+    # 한국 표준시(KST) 매주 월요일 오전 5시 실행 (UTC 기준 일요일 20시)
+    - cron: '0 20 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  calc-avg:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Run regional average calculation script
+        env:
+          NEIS_API_KEY: ${{ secrets.NEIS_API_KEY }}
+        run: python calc_regional_avg.py
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add chungnam_avg.json
+          git diff-index --quiet HEAD || (git commit -m "Update Chungnam weekly average data" && git push)
