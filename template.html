@@ -3,67 +3,314 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>오늘의 중식 - {{DATE}}</title>
+    <title>급식봇 V2 - {{TODAY_FORMATTED}}</title>
     <meta property="og:type" content="website">
-    <meta property="og:title" content="오늘의 중식 ({{DATE}})">
+    <meta property="og:title" content="오늘의 중식 ({{TODAY_FORMATTED}})">
     <meta property="og:description" content="{{MEAL_SUMMARY}}">
     <meta property="og:image" content="{{OG_IMAGE_URL}}">
     <meta property="og:image:width" content="800">
     <meta property="og:image:height" content="400">
     <style>
+        :root {
+            --primary: #ffd400;
+            --bg-color: #f7f9fa;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-muted: #888888;
+        }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #f7f9fa;
+            background-color: var(--bg-color);
             margin: 0;
             padding: 20px;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             min-height: 100vh;
         }
-        .card {
-            background: white;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            max-width: 450px;
+        .container {
             width: 100%;
-            box-sizing: border-box;
+            max-width: 500px;
         }
-        h1 {
-            font-size: 20px;
-            color: #333;
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: #eaeaea;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #555;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            color: #000;
+            box-shadow: 0 4px 10px rgba(255, 212, 0, 0.3);
+        }
+        .card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+        }
+        .card h2 {
+            font-size: 18px;
             margin-top: 0;
-            border-bottom: 2px solid #ffd400;
+            border-bottom: 2px solid var(--primary);
             padding-bottom: 10px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
         }
-        .date {
-            font-size: 14px;
-            color: #888;
-            font-weight: normal;
+        .date { font-size: 14px; color: var(--text-muted); font-weight: normal; }
+        .dish-list {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0 0 0;
         }
-        pre {
+        .dish-list li {
             font-size: 16px;
-            line-height: 1.8;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
             color: #444;
-            white-space: pre-wrap;
-            word-break: break-all;
-            font-family: inherit;
-            margin: 20px 0 0 0;
-            background: #fafafa;
+        }
+        .dish-list li:last-child { border-bottom: none; }
+        
+        /* 주간 식단 리스트 */
+        .weekly-item { margin-bottom: 20px; }
+        .weekly-item:last-child { margin-bottom: 0; }
+        
+        /* 영양정보 토글 및 그래프 */
+        .nutrition-toggle {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background: #f0f4f8;
+            border: 1px solid #dce4ec;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #2c3e50;
+            cursor: pointer;
+        }
+        .nutrition-panel {
+            display: none;
+            margin-top: 15px;
             padding: 15px;
+            background: #fafbfc;
             border-radius: 8px;
             border: 1px solid #eee;
         }
+        .nutrition-panel.open { display: block; }
+        
+        .chart-row { margin-bottom: 15px; }
+        .chart-row:last-child { margin-bottom: 0; }
+        .chart-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .bar-bg {
+            width: 100%;
+            background: #e9ecef;
+            border-radius: 6px;
+            height: 12px;
+            margin-bottom: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.5s ease-out;
+        }
+        .bar-school { background: #4dabf7; }
+        .bar-avg { background: #ced4da; }
+        .legend {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 15px;
+            justify-content: flex-end;
+        }
+        .legend-item span {
+            display: inline-block;
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+        }
+        [style*="display: none"] { display: none !important; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>오늘의 중식 <span class="date">{{DATE}}</span></h1>
-        <pre>{{MEAL_TEXT}}</pre>
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('today')">오늘 보기</button>
+            <button class="tab-btn" onclick="switchTab('weekly')">이번 주 보기</button>
+        </div>
+
+        <!-- 오늘 보기 영역 -->
+        <div id="view-today" class="card">
+            <h2 id="today-title">오늘의 중식 <span class="date">{{TODAY_FORMATTED}}</span></h2>
+            <ul id="today-dishes" class="dish-list">
+                <!-- JS에서 채움 -->
+            </ul>
+
+            <button class="nutrition-toggle" onclick="toggleNutrition('today-nutrition')">
+                📊 영양정보 및 충남 평균 비교 보기
+            </button>
+            <div id="today-nutrition" class="nutrition-panel">
+                <div class="legend">
+                    <div class="legend-item"><span style="background: #4dabf7;"></span>우리 학교</div>
+                    <div class="legend-item"><span style="background: #ced4da;"></span>충남 평균</div>
+                </div>
+                <div id="today-charts"></div>
+            </div>
+        </div>
+
+        <!-- 이번 주 보기 영역 -->
+        <div id="view-weekly" class="card" style="display: none;">
+            <!-- JS에서 동적 생성 -->
+        </div>
     </div>
+
+    <script>
+        // 파이썬 스크립트에서 주입하는 데이터
+        const weeklyData = {{WEEKLY_DATA_JSON}};
+        const chungnamAvg = {{CHUNGNAM_AVG_JSON}};
+        const todayYmd = "{{TODAY_YMD}}";
+
+        // 요일 배열
+        const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
+
+        // 데이터 렌더링 초기화
+        function init() {
+            renderToday();
+            renderWeekly();
+        }
+
+        // 탭 전환 로직
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('view-today').style.display = tabId === 'today' ? 'block' : 'none';
+            document.getElementById('view-weekly').style.display = tabId === 'weekly' ? 'block' : 'none';
+        }
+
+        // 영양정보 토글 로직
+        function toggleNutrition(elementId) {
+            const panel = document.getElementById(elementId);
+            panel.classList.toggle('open');
+        }
+
+        // 그래프 생성 헬퍼 함수
+        function createNutritionCharts(nutrients, containerId) {
+            const container = document.getElementById(containerId);
+            if (!nutrients || (nutrients.carbs === 0 && nutrients.protein === 0 && nutrients.fat === 0)) {
+                container.innerHTML = '<div class="empty-state">영양정보가 제공되지 않았습니다.</div>';
+                return;
+            }
+
+            const items = [
+                { label: '탄수화물(g)', myVal: nutrients.carbs, avgVal: chungnamAvg.carbs || 0 },
+                { label: '단백질(g)', myVal: nutrients.protein, avgVal: chungnamAvg.protein || 0 },
+                { label: '지방(g)', myVal: nutrients.fat, avgVal: chungnamAvg.fat || 0 }
+            ];
+
+            let html = '';
+            items.forEach(item => {
+                // 백분율 계산을 위한 최대값 (조금의 여유폭 1.2배)
+                const maxVal = Math.max(item.myVal, item.avgVal, 1) * 1.2; 
+                const myWidth = (item.myVal / maxVal) * 100;
+                const avgWidth = (item.avgVal / maxVal) * 100;
+
+                html += `
+                    <div class="chart-row">
+                        <div class="chart-labels">
+                            <span>${item.label}</span>
+                            <span>우리 ${item.myVal} / 충남 ${item.avgVal}</span>
+                        </div>
+                        <div class="bar-bg" title="우리 학교: ${item.myVal}g">
+                            <div class="bar-fill bar-school" style="width: ${myWidth}%;"></div>
+                        </div>
+                        <div class="bar-bg" title="충남 평균: ${item.avgVal}g">
+                            <div class="bar-fill bar-avg" style="width: ${avgWidth}%;"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // 오늘 데이터 렌더링
+        function renderToday() {
+            const todayData = weeklyData[todayYmd];
+            const listContainer = document.getElementById('today-dishes');
+            
+            if (todayData && todayData.dishes.length > 0) {
+                listContainer.innerHTML = todayData.dishes.map(dish => `<li>${dish}</li>`).join('');
+                createNutritionCharts(todayData.nutrients, 'today-charts');
+            } else {
+                listContainer.innerHTML = '<li class="empty-state">오늘의 중식 정보가 없습니다.</li>';
+                document.getElementById('today-nutrition').innerHTML = '<div class="empty-state">데이터 없음</div>';
+            }
+        }
+
+        // 이번 주 데이터 렌더링
+        function renderWeekly() {
+            const container = document.getElementById('view-weekly');
+            const sortedKeys = Object.keys(weeklyData).sort();
+            
+            if (sortedKeys.length === 0) {
+                container.innerHTML = '<div class="empty-state">이번 주 식단 데이터가 없습니다.</div>';
+                return;
+            }
+
+            let html = '';
+            sortedKeys.forEach(ymd => {
+                const data = weeklyData[ymd];
+                // YYYY-MM-DD 형식에서 Date 객체 생성하여 요일 추출
+                const dateObj = new Date(data.date_formatted);
+                const dayName = daysOfWeek[dateObj.getDay()];
+                const isToday = ymd === todayYmd;
+                
+                const titleStyle = isToday ? 'color: #d4a000;' : '';
+                const dateText = `${data.date_formatted} (${dayName})`;
+
+                html += `
+                    <div class="weekly-item">
+                        <h2 style="${titleStyle}">
+                            ${isToday ? '👉 오늘 ' : ''}${dateText}
+                        </h2>
+                        <ul class="dish-list">
+                            ${data.dishes.length > 0 
+                                ? data.dishes.map(d => `<li>${d}</li>`).join('') 
+                                : '<li class="empty-state">급식 정보가 없습니다.</li>'}
+                        </ul>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // 실행
+        window.onload = init;
+    </script>
 </body>
 </html>
