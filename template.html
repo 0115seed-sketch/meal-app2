@@ -69,7 +69,13 @@
             display: flex;
             justify-content: space-between;
         }
+        .title-meta {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 8px;
+        }
         .date { font-size: 14px; color: var(--text-muted); font-weight: normal; }
+        .kcal { font-size: 14px; color: #5f6b7a; font-weight: 600; }
         .dish-list {
             list-style: none;
             padding: 0;
@@ -166,7 +172,13 @@
 
         <!-- 오늘 보기 영역 -->
         <div id="view-today" class="card">
-            <h2 id="today-title">오늘의 중식 <span class="date">{{TODAY_FORMATTED}}</span></h2>
+            <h2 id="today-title">
+                오늘의 중식
+                <span class="title-meta">
+                    <span class="date">{{TODAY_FORMATTED}}</span>
+                    <span class="kcal" id="today-kcal"></span>
+                </span>
+            </h2>
             <ul id="today-dishes" class="dish-list">
                 <!-- JS에서 채움 -->
             </ul>
@@ -262,12 +274,18 @@
         function renderToday() {
             const todayData = weeklyData[todayYmd];
             const listContainer = document.getElementById('today-dishes');
+            const kcalElement = document.getElementById('today-kcal');
             
             if (todayData && todayData.dishes.length > 0) {
                 listContainer.innerHTML = todayData.dishes.map(dish => `<li>${dish}</li>`).join('');
+                const kcal = Number(todayData.nutrients?.kcal || 0);
+                kcalElement.textContent = kcal > 0
+                    ? `${new Intl.NumberFormat('ko-KR').format(kcal)} kcal`
+                    : 'kcal 정보 없음';
                 createNutritionCharts(todayData.nutrients, 'today-charts');
             } else {
                 listContainer.innerHTML = '<li class="empty-state">오늘의 중식 정보가 없습니다.</li>';
+                kcalElement.textContent = 'kcal 정보 없음';
                 document.getElementById('today-nutrition').innerHTML = '<div class="empty-state">데이터 없음</div>';
             }
         }

@@ -33,14 +33,18 @@ def clean_dish_name(raw_name):
 
 def parse_nutrition(ntr_info_str):
     if not ntr_info_str:
-        return {"carbs": 0, "protein": 0, "fat": 0}
+        return {"carbs": 0, "protein": 0, "fat": 0, "kcal": 0}
     match_carbs = re.search(r'탄수화물\([^)]*\)\s*:\s*([0-9.]+)', ntr_info_str)
     match_protein = re.search(r'단백질\([^)]*\)\s*:\s*([0-9.]+)', ntr_info_str)
     match_fat = re.search(r'지방\([^)]*\)\s*:\s*([0-9.]+)', ntr_info_str)
+    match_kcal = re.search(r'(?:에너지|열량)\([^)]*\)\s*:\s*([0-9.]+)', ntr_info_str)
+    if not match_kcal:
+        match_kcal = re.search(r'(?:에너지|열량)\s*:\s*([0-9.]+)', ntr_info_str)
     return {
         "carbs": float(match_carbs.group(1)) if match_carbs else 0,
         "protein": float(match_protein.group(1)) if match_protein else 0,
-        "fat": float(match_fat.group(1)) if match_fat else 0
+        "fat": float(match_fat.group(1)) if match_fat else 0,
+        "kcal": float(match_kcal.group(1)) if match_kcal else 0
     }
 
 # 4. 나이스 API 호출 (이번 주 전체 데이터)
