@@ -31,13 +31,21 @@ def clean_dish_name(raw_name):
     cleaned = re.sub(r'[*#]', '', cleaned)
     return cleaned.strip()
 
-def parse_nutrition(ntr_info_str):
-    if not ntr_info_str:
+def parse_nutrition(ntr_info_str, cal_info_str=""):
+    if not ntr_info_str and not cal_info_str:
         return {"carbs": 0, "protein": 0, "fat": 0, "kcal": 0}
     match_carbs = re.search(r'탄수화물\([^)]*\)\s*:\s*([0-9.]+)', ntr_info_str)
     match_protein = re.search(r'단백질\([^)]*\)\s*:\s*([0-9.]+)', ntr_info_str)
     match_fat = re.search(r'지방\([^)]*\)\s*:\s*([0-9.]+)', ntr_info_str)
-    match_kcal = re.search(r'(?:에너지|열량)\([^)]*\)\s*:\s*([0-9.]+)', ntr_info_str)
+
+    # NEIS는 kcal을 CAL_INFO로 별도 제공하는 경우가 많아 우선 파싱한다.
+    match_kcal = re.search(r'([0-9.]+)\s*[kK]?[cC]al', cal_info_str)
+    if not match_kcal:
+        match_kcal = re.search(r'([0-9.]+)', cal_info_str)
+
+    # CAL_INFO가 없거나 형식이 다르면 NTR_INFO에서 보조로 추출한다.
+    if not match_kcal:
+        match_kcal = re.search(r'(?:에너지|열량)\([^)]*\)\s*:\s*([0-9.]+)', ntr_info_str)
     if not match_kcal:
         match_kcal = re.search(r'(?:에너지|열량)\s*:\s*([0-9.]+)', ntr_info_str)
     return {
@@ -66,7 +74,7 @@ try:
             ymd = row["MLSV_YMD"]
             raw_dishes = row["DDISH_NM"].split("<br/>")
             cleaned_dishes = [clean_dish_name(d) for d in raw_dishes if d.strip()]
-            nutrients = parse_nutrition(row.get("NTR_INFO", ""))
+            nutrients = parse_nutrition(row.get("NTR_INFO", ""), row.get("CAL_INFO", ""))
             
             weekly_data[ymd] = {
                 "date_formatted": f"{ymd[:4]}-{ymd[4:6]}-{ymd[6:]}",

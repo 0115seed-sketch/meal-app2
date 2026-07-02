@@ -231,6 +231,13 @@
             panel.classList.toggle('open');
         }
 
+        function formatKcalText(nutrients) {
+            const kcal = Number(nutrients?.kcal || 0);
+            return kcal > 0
+                ? `${new Intl.NumberFormat('ko-KR').format(kcal)} kcal`
+                : 'kcal 정보 없음';
+        }
+
         // 그래프 생성 헬퍼 함수
         function createNutritionCharts(nutrients, containerId) {
             const container = document.getElementById(containerId);
@@ -278,10 +285,7 @@
             
             if (todayData && todayData.dishes.length > 0) {
                 listContainer.innerHTML = todayData.dishes.map(dish => `<li>${dish}</li>`).join('');
-                const kcal = Number(todayData.nutrients?.kcal || 0);
-                kcalElement.textContent = kcal > 0
-                    ? `${new Intl.NumberFormat('ko-KR').format(kcal)} kcal`
-                    : 'kcal 정보 없음';
+                kcalElement.textContent = formatKcalText(todayData.nutrients);
                 createNutritionCharts(todayData.nutrients, 'today-charts');
             } else {
                 listContainer.innerHTML = '<li class="empty-state">오늘의 중식 정보가 없습니다.</li>';
@@ -310,11 +314,13 @@
                 
                 const titleStyle = isToday ? 'color: #d4a000;' : '';
                 const dateText = `${data.date_formatted} (${dayName})`;
+                const kcalText = formatKcalText(data.nutrients);
 
                 html += `
                     <div class="weekly-item">
                         <h2 style="${titleStyle}">
-                            ${isToday ? '👉 오늘 ' : ''}${dateText}
+                            <span>${isToday ? '👉 오늘 ' : ''}${dateText}</span>
+                            <span class="kcal">${kcalText}</span>
                         </h2>
                         <ul class="dish-list">
                             ${data.dishes.length > 0 
