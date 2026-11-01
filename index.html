@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>업성고 급식 - 2026-11-01</title>
+    <title>업성고 급식 - 2026-11-02</title>
     <meta property="og:type" content="website">
-    <meta property="og:title" content="오늘의 급식 (2026-11-01)">
-    <meta property="og:description" content="중식 정보 없음">
-    <meta property="og:image" content="https://0115seed-sketch.github.io/meal-app2/images/meal_20261101.png">
+    <meta property="og:title" content="오늘의 급식 (2026-11-02)">
+    <meta property="og:description" content="혼합잡곡밥, 잡채, 쇠고기미역국, 등갈비김치찜, 깻잎순나물볶음, 배추김치, (생일축하)케이...">
+    <meta property="og:image" content="https://0115seed-sketch.github.io/meal-app2/images/meal_20261102.png">
     <meta property="og:image:width" content="800">
     <meta property="og:image:height" content="400">
     <style>
@@ -175,7 +175,7 @@
             <h2 id="today-title">
                 오늘의 중식
                 <span class="title-meta">
-                    <span class="date">2026-11-01</span>
+                    <span class="date">2026-11-02</span>
                     <span class="kcal" id="today-kcal"></span>
                 </span>
             </h2>
@@ -203,9 +203,9 @@
 
     <script>
         // 파이썬 스크립트에서 주입하는 데이터
-        const weeklyData = {"20261026": {"date_formatted": "2026-10-26", "dishes": ["차조밥", "돈육김치찌개", "방풍나물무침", "간장오리불고기", "떡갈비조림", "콘치즈구이", "배추김치"], "nutrients": {"carbs": 93.8, "protein": 45.0, "fat": 63.8, "kcal": 1148.9}}, "20261027": {"date_formatted": "2026-10-27", "dishes": ["혼합잡곡밥", "쇠고기무국", "매콤감자조림", "꽈리고추양념찜", "돈육파인애플구이", "배추김치", "골라먹는 음료"], "nutrients": {"carbs": 109.1, "protein": 34.3, "fat": 12.4, "kcal": 692.8}}, "20261028": {"date_formatted": "2026-10-28", "dishes": ["불고기미나리볶음밥", "미소된장국", "핫윙", "오이지무침", "과일요거트범벅", "깍두기"], "nutrients": {"carbs": 49.1, "protein": 30.9, "fat": 22.0, "kcal": 522.5}}, "20261029": {"date_formatted": "2026-10-29", "dishes": ["차수수밥", "바지락된장찌개", "들깨브로콜리볶음", "돼코바", "카레두부전/케첩", "배추김치"], "nutrients": {"carbs": 86.2, "protein": 40.5, "fat": 19.1, "kcal": 696.3}}, "20261030": {"date_formatted": "2026-10-30", "dishes": ["추가밥", "명란크림파스타", "유자청샐러드", "함박스테이크/데미s", "깍두기/피클", "양송이스프"], "nutrients": {"carbs": 113.3, "protein": 26.9, "fat": 34.0, "kcal": 858.7}}};
+        const weeklyData = {"20261102": {"date_formatted": "2026-11-02", "dishes": ["혼합잡곡밥", "잡채", "쇠고기미역국", "등갈비김치찜", "깻잎순나물볶음", "배추김치", "(생일축하)케이크"], "nutrients": {"carbs": 92.2, "protein": 35.1, "fat": 25.8, "kcal": 760.1}}, "20261103": {"date_formatted": "2026-11-03", "dishes": ["차조밥", "동태찌개", "세발나물무침", "돼지고기된장불고기", "새송이짬뽕양념구이", "배추김치", "스위티자몽주스"], "nutrients": {"carbs": 75.7, "protein": 41.7, "fat": 13.5, "kcal": 598.2}}, "20261104": {"date_formatted": "2026-11-04", "dishes": ["닭갈비볶음밥", "달걀실파국", "연근흑임자무침", "감자고로케/케첩", "삼치엿장구이", "깍두기"], "nutrients": {"carbs": 82.1, "protein": 27.5, "fat": 16.6, "kcal": 597.8}}, "20261105": {"date_formatted": "2026-11-05", "dishes": ["통밀밥", "버섯매운탕", "꽃맛살메추리알샐러드", "눈꽃치즈로제달고기구이", "배추김치", "고르곤졸라피자"], "nutrients": {"carbs": 86.2, "protein": 24.0, "fat": 29.2, "kcal": 701.7}}, "20261106": {"date_formatted": "2026-11-06", "dishes": ["추가밥", "제주고기국수", "무생채", "매콤볼어묵볶음", "자메이카닭봉구이", "배추겉절이", "귤"], "nutrients": {"carbs": 103.7, "protein": 49.8, "fat": 20.3, "kcal": 814.9}}};
         const chungnamAvg = {"carbs": 99.8, "protein": 31.5, "fat": 20.2, "sample_count": 184};
-        const todayYmd = "20261101";
+        const todayYmd = "20261102";
 
         // 요일 배열
         const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
